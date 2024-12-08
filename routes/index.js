@@ -1,18 +1,9 @@
 import express from 'express';
 const router = express.Router();
-import dbClient from '../utils/db.js';
-import redisClient from '../utils/redis.js';
 
-router.get('/status', (req, res) => {
-    if (dbClient.isAlive() && redisClient.isAlive()) {
-        res.status(200).send({ redis: true, db: true });
-    }
-});
+import AppController  from '../controllers/AppController.js';('../controllers/AppController.js');
 
-router.get('/stats', (req, res) => {
-    const numberOfUsers = dbClient.nbUsers();
-    const numberOfFiles = dbClient.nbFiles();
-    res.status(200).send({ users: numberOfUsers, files: numberOfFiles });
-});
+router.get('/status', AppController.getStatus);
+router.get('/stats', AppController.getStats);
 
 export default router;
