@@ -1,4 +1,5 @@
 const dbClient = require('../utils/db');
+const redisClient = require('../utils/redis');
 
 const UsersController = {
   async postNew(req, res) {
@@ -23,7 +24,7 @@ const UsersController = {
     const id = `${user.insertedId}`;
     res.status(201).json({ id, email });
     res.end();
-  }
+  },  
 }
 
 export default UsersController;
