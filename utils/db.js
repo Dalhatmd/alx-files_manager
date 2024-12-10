@@ -48,15 +48,25 @@ class DBClient {
   }
 
   async getUserById(id) {
-    const _id = new mongo.ObjectId(id);
-    await this.client.connect();
-    const user = await this.client.db(this.database).collection('users').find({ _id }).toArray();
-    if (!user.length) {
+    try {
+      // Validate and convert the ID
+      let _id;
+      try {
+        _id = new mongo.ObjectId(id);
+      } catch (err) {
+        console.error('Invalid ID format:', id);
+        return null;
+      }
+  
+      await this.client.connect();
+      const user = await this.client.db(this.database).collection('users').findOne({ _id });
+      
+      return user;
+    } catch (error) {
+      console.error('Error finding user by ID:', error);
       return null;
     }
-    return user[0];
   }
-
   async userExist(email) {
     const user = await this.getUser(email);
     if (user) {

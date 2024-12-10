@@ -1,5 +1,3 @@
-#!/usr/bin/node
-
 const sha1 = require('sha1');
 
 export const pwdHashed = (pwd) => sha1(pwd);
@@ -8,6 +6,7 @@ export const getAuthzHeader = (req) => {
   if (!header) {
     return null;
   }
+  console.log(header);
   return header;
 };
 
@@ -16,6 +15,7 @@ export const getToken = (authzHeader) => {
   if (tokenType !== 'Basic ') {
     return null;
   }
+  console.log(authzHeader);
   return authzHeader.substring(6);
 };
 
@@ -24,6 +24,7 @@ export const decodeToken = (token) => {
   if (!decodedToken.includes(':')) {
     return null;
   }
+  console.log(decodedToken);
   return decodedToken;
 };
 
@@ -32,5 +33,7 @@ export const getCredentials = (decodedToken) => {
   if (!email || !password) {
     return null;
   }
+  console.log(email);
+  console.log(password)
   return { email, password };
 };

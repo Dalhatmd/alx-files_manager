@@ -42,29 +42,34 @@ class AuthController {
     res.end();
   }
   static async getMe(req, res) {
-    const token = req.headers['x-token'];
-    if (!token) {
-      res.status(401).json({ error: 'Unauthorized' });
-      res.end();
-      return;
+    try {
+      console.log('X-Token headers:', req.headers);
+      const token = req.headers['x-token']; // Note the lowercase
+      if (!token) {
+        return res.status(401).json({ error: 'Unauthorized - No Token' });
+      }
+  
+      const userId = await redisClient.get(`auth_${token}`);
+      console.log('Retrieved User ID:', userId); // Debug logging
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized - Invalid Token' });
+      }
+  
+      const user = await dbClient.getUserById(userId);
+      if (!user) {
+        return res.status(401).json({ error: 'Unauthorized - User Not Found' });
+      }
+  
+      res.status(200).json({ id: user._id, email: user.email });
+    } catch (error) {
+      console.error('Get Me Error:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
     }
-    const id = await redisClient.get(`auth_${token}`);
-    if (!id) {
-      res.status(401).json({ error: 'Unauthorized' });
-      res.end();
-      return;
-    }
-    const user = await dbClient.getUserById(id);
-    if (!user) {
-      res.status(401).json({ error: 'Unauthorized' });
-      res.end();
-      return;
-    }
-    res.json({ id: user._id, email: user.email }).end();
   }
 
   static async getDisconnect(req, res) {
-    const token = req.headers['x-token'];
+    const token = req.headers['X-Token'];
     if (!token) {
       res.status(401).json({ error: 'Unauthorized' });
       res.end();
