@@ -4,16 +4,30 @@ const { pwdHashed } = require('./utils');
 
 class DBClient {
   constructor() {
-    const host = (process.env.DB_HOST) ? process.env.DB_HOST : 'localhost';
-    const port = (process.env.DB_PORT) ? process.env.DB_PORT : 27017;
-    this.database = (process.env.DB_DATABASE) ? process.env.DB_DATABASE : 'files_manager';
+    const host = process.env.DB_HOST || 'localhost';
+    const port = process.env.DB_PORT || 27017;
+    this.database = process.env.DB_DATABASE || 'files_manager';
     const dbUrl = `mongodb://${host}:${port}`;
     this.connected = false;
-    this.client = new MongoClient(dbUrl, { useUnifiedTopology: true, useNewUrlParser: true });
-    this.client.connect().then(() => {
-      this.connected = true;
-    }).catch((err) => console.log(err.message));
+    this.client = new MongoClient(dbUrl, { 
+      useUnifiedTopology: true, 
+      useNewUrlParser: true 
+    });
+    
+    this.connect();
   }
+
+  async connect() {
+    try {
+      await this.client.connect();
+      this.connected = true;
+      this.db = this.client.db(this.database);
+    } catch (err) {
+      console.log('Database connection error:', err.message);
+      this.connected = false;
+    }
+  }
+
 
   isAlive() {
     return this.connected;
@@ -74,11 +88,14 @@ class DBClient {
     }
     return false;
   }
-  
-  async save() {
-    await this.client.connect();
-    await this.client.db(this.database).collection('files').save();
+
+  collection(name) {
+    return this.db.collection(name);
   }
+  
+  async insertFile(fileData) {
+    return await this.db.collection('files').insertOne(fileData);
+ }
 }
 
 
