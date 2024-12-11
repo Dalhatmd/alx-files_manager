@@ -1,7 +1,7 @@
 const sha1 = require('sha1');
 
-export const pwdHashed = (pwd) => sha1(pwd);
-export const getAuthzHeader = (req) => {
+const pwdHashed = (pwd) => sha1(pwd);
+const getAuthzHeader = (req) => {
   const header = req.headers.authorization;
   if (!header) {
     return null;
@@ -10,7 +10,7 @@ export const getAuthzHeader = (req) => {
   return header;
 };
 
-export const getToken = (authzHeader) => {
+const getToken = (authzHeader) => {
   const tokenType = authzHeader.substring(0, 6);
   if (tokenType !== 'Basic ') {
     return null;
@@ -19,7 +19,7 @@ export const getToken = (authzHeader) => {
   return authzHeader.substring(6);
 };
 
-export const decodeToken = (token) => {
+const decodeToken = (token) => {
   const decodedToken = Buffer.from(token, 'base64').toString('utf8');
   if (!decodedToken.includes(':')) {
     return null;
@@ -28,7 +28,7 @@ export const decodeToken = (token) => {
   return decodedToken;
 };
 
-export const getCredentials = (decodedToken) => {
+const getCredentials = (decodedToken) => {
   const [email, password] = decodedToken.split(':');
   if (!email || !password) {
     return null;
@@ -37,3 +37,5 @@ export const getCredentials = (decodedToken) => {
   console.log(password)
   return { email, password };
 };
+
+module.exports = { pwdHashed, getAuthzHeader, getToken, decodeToken, getCredentials };

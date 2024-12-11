@@ -1,6 +1,6 @@
 const { MongoClient } = require('mongodb');
 const mongo = require('mongodb');
-const pwdHashed = require('./utils');
+const { pwdHashed } = require('./utils');
 
 class DBClient {
   constructor() {
@@ -52,7 +52,7 @@ class DBClient {
       // Validate and convert the ID
       let _id;
       try {
-        _id = new mongo.ObjectId(id);
+        _id = new mongo.ObjectId(id.trim());
       } catch (err) {
         console.error('Invalid ID format:', id);
         return null;
@@ -73,6 +73,11 @@ class DBClient {
       return true;
     }
     return false;
+  }
+  
+  async save() {
+    await this.client.connect();
+    await this.client.db(this.database).collection('files').save();
   }
 }
 
